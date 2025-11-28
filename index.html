@@ -1,0 +1,150 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex">
+<title>テキスト スロット</title>
+<style>
+	body {
+		text-align:center;
+		margin:0;
+		padding-top:40px;
+		font-family: "Segoe UI", sans-serif;
+		background:#f0f2f5;
+		color:#333;
+	}
+
+	#display {
+		font-size:60vw;
+		line-height:1;
+		height:auto;
+		min-height:40vh;
+		display:flex;
+		align-items:center;
+		justify-content:center;
+
+		margin-bottom:40px;
+		font-weight:600;
+		text-shadow:0 4px 12px rgba(0,0,0,0.18);
+		transition:transform 0.15s ease-out, opacity 0.15s ease-out;
+	}
+	.fade {
+		opacity:0;
+		transform: translateY(20px);
+	}
+
+	.controls {
+		margin:15px 0 25px 0;
+		font-size:22px;
+	}
+
+	button {
+		font-size:32px;
+		padding:16px 40px;
+		margin:25px 12px;
+		border:none;
+		border-radius:12px;
+		background:#4285f4;
+		color:white;
+		cursor:pointer;
+		box-shadow:0 4px 10px rgba(0,0,0,0.18);
+		transition:0.2s;
+	}
+
+	button:hover {
+		background:#3367d6;
+	}
+
+	button:disabled {
+		background:#9bb9f0;
+		cursor:not-allowed;
+	}
+
+	input[type="number"] {
+		width:110px;
+		padding:10px;
+		font-size:32px;
+		border:1px solid #ccc;
+		border-radius:8px;
+	}
+	input[type="radio"] {
+		font-size:32px;
+	}
+
+	.stopped {
+		color: #d32f2f;
+		text-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+	}
+</style>
+</head>
+<body>
+
+<div id="display">右</div>
+
+<div class="controls">
+	<label><input type="radio" name="mode" value="lr" checked> 左右</label>
+	<label><input type="radio" name="mode" value="num"> 数字</label>
+</div>
+
+<div class="controls">
+	数字: 最小 <input type="number" id="minNum" value="1">
+	最大 <input type="number" id="maxNum" value="20">
+</div>
+
+<div class="controls">
+	自動停止(ms): <input type="number" id="stopTime" value="3000">
+</div>
+
+<div>
+	<button id="start" onclick="start()">スタート</button>
+	<button id="stop" onclick="stop()">ストップ</button>
+</div>
+
+<script>
+	let timer;
+	let isRunning = false;
+	let current = "右";
+	const disp = document.getElementById("display");
+
+	function animate() {
+		disp.classList.add("fade");
+		setTimeout(() => disp.classList.remove("fade"), 50);
+	}
+
+	function start() {
+		if (isRunning) return;
+		isRunning = true;
+
+		disp.classList.remove("stopped");
+
+		let mode = document.querySelector('input[name="mode"]:checked').value;
+		let stopTime = Number(document.getElementById("stopTime").value);
+
+		timer = setInterval(() => {
+			if (mode === "lr") {
+				current = (current === "右") ? "左" : "右";
+			} else {
+				let min = Number(document.getElementById("minNum").value);
+				let max = Number(document.getElementById("maxNum").value);
+				if (min > max) [min, max] = [max, min];
+				current = Math.floor(Math.random() * (max - min + 1)) + min;
+			}
+
+			animate();
+			disp.textContent = current;
+		}, 110);
+
+		setTimeout(() => stop(), stopTime);
+		document.getElementById("start").disabled = true;
+	}
+
+	function stop() {
+		isRunning = false;
+		clearInterval(timer);
+		document.getElementById("start").disabled = false;
+		disp.classList.add("stopped");
+	}
+</script>
+
+</body>
+</html>
